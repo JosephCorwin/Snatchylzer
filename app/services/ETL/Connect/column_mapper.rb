@@ -1,6 +1,6 @@
 module ETL
   module Connect
-    # sends GET request to API host server
+    # renames keys from API responses
     class ColumnMapper < ApplicationService
       attr_reader :map, :results
 
