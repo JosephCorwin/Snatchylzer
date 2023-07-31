@@ -1,0 +1,18 @@
+class ApiJob < ApplicationJob
+  queue_as :default
+
+  def perform(job_profile)
+    if job_profile.param_set.looper.present?
+      loop = job.param_set.looper
+      ApplicationRecord.const_get(loop[:model_name]).where(loop[:model_condition]).each do |record|
+        job_params = job.param_set.body
+        job_params[loop[:param_key].to_sym] = record.send(loop[:model_key])
+        CallService.perform_later(job.service_name, job_params)
+        sleep 0.3
+      end
+    else
+      job_params = job.param_set.body
+      CallService.perform_later(job.service_name, job_params)
+    end
+  end
+end
